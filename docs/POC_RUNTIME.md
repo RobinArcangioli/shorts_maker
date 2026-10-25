@@ -19,10 +19,11 @@ Configuration expérimentale par défaut : faster-whisper `base`/CPU/`int8`, Oll
 - L’hôte Docker est maintenant accessible avec autorisation hors sandbox. L’image `ollama/ollama:latest` a été récupérée, et le service `ollama` est `healthy`.
 - `qwen2.5:1.5b` a été téléchargé dans le volume persistant Ollama (986 Mo). Une requête de test vers `http://ollama:11434/v1/chat/completions`, depuis un conteneur temporaire sur le réseau Compose, a renvoyé HTTP 200 et le JSON `{"ready": true}`. Le chemin testé n’utilise aucun service IA externe.
 - Mesures observées sur l’hôte : 7.176 Gio de RAM totale, 2.0 Gio disponibles après le test, 1.4/4 Gio de swap utilisés, 58 Gio disponibles sur `/`. Ollama utilisait 65.69 Mio avant chargement du modèle et 1.26 Gio après une requête. Ces valeurs décrivent la machine de développement, pas le VPS de 4 Go.
-- `docker compose -f docker-compose.poc.yml up --build -d` : le pull Ollama a réussi, mais le build backend s’est arrêté à `apt-get update`. Le réseau ne joint pas `deb.debian.org` sur le port 80 depuis le build (`Connection failed`) ; les contrôles HTTPS depuis l’hôte échouent également (`SSL_ERROR_SYSCALL`).
+- `docker compose -f docker-compose.poc.yml up --build -d` : le pull Ollama a réussi, mais le build backend s’est arrêté à `apt-get update`. Un second essai avec `docker buildx build --network host` échoue au même endroit ; le mode réseau du build n’est donc pas la cause.
+- Depuis le build, `deb.debian.org` ne répond pas sur le port 80 (`Connection failed`). Depuis l’hôte, HTTP renvoie une réponse vide et HTTPS échoue (`SSL_ERROR_SYSCALL`). Le problème est une restriction de sortie réseau vers les miroirs Debian (ou l’absence d’un proxy requis), pas une permission Unix.
 - Comme le build ne termine pas, le backend, ffmpeg dans l’image, le healthcheck FastAPI et le chargement Whisper n’ont pas encore été vérifiés.
 
-La phase reste partiellement validée. Il faut rétablir l’accès réseau du build Docker vers les dépôts Debian et les registries de dépendances, ou fournir un miroir/proxy accessible, puis reprendre le build et les contrôles backend/Whisper.
+La phase reste partiellement validée. Il faut rétablir l’accès sortant vers les dépôts Debian et les registries utilisés par le Dockerfile, ou fournir un proxy/mirror accessible au build, puis reprendre les contrôles backend/Whisper. Ne pas désactiver le pare-feu globalement ; ouvrir les destinations nécessaires ou configurer le proxy explicitement.
 
 Pour vérifier la configuration sans démarrer les services :
 
