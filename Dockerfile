@@ -12,10 +12,21 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
 # Copy and install Python dependencies
 # Copy and install Python dependencies
 COPY requirements.txt requirements-billing.txt ./
+ARG GPU=0
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# The default POC uses CPU inference. PyPI's default PyTorch wheels include
+# CUDA runtime packages; install the matching CPU wheels first so the pinned
+# requirements below reuse them instead of pulling several GB of CUDA libs.
+# GPU builds retain the upstream default wheel selection.
+RUN if [ "$GPU" = "1" ]; then \
+      pip install --no-cache-dir -r requirements.txt; \
+    else \
+      pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+        "torch==2.11.0" "torchvision==0.26.0" \
+      && pip install --no-cache-dir -r requirements.txt; \
+    fi
 # Cloud (paid mode) deps: installed always so one image serves both modes; they
 # are only imported when BILLING_ENABLED is set. Harmless/unused in self-host.
 RUN pip install --no-cache-dir -r requirements-billing.txt
@@ -24,7 +35,6 @@ RUN pip install --no-cache-dir -r requirements-billing.txt
 # container runtime injects the driver. cuBLAS 12 + cuDNN 9 for CTranslate2
 # (faster-whisper CUDA), onnx-asr + onnxruntime-gpu for Parakeet. Adds ~2GB,
 # so the default CPU image stays slim.
-ARG GPU=0
 RUN if [ "$GPU" = "1" ]; then \
       pip install --no-cache-dir \
         "nvidia-cublas-cu12<13" "nvidia-cudnn-cu12>=9,<10" \

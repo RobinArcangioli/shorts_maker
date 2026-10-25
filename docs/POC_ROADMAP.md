@@ -20,7 +20,7 @@ La phase 0 a confirmé que le dépôt possède déjà la plupart des composants 
 
 Préparer l’environnement de développement et le service Ollama, retenir `qwen2.5:1.5b` comme point de départ expérimental, puis confirmer que l’API OpenAI-compatible et le modèle répondent. Configurer faster-whisper en `base`, CPU, `int8`, avec changement de modèle possible par variables d’environnement. Garder une concurrence vidéo à 1 pour le profil VPS initial.
 
-**État : validée pour la construction et le démarrage local.** Ollama est sain et Qwen a répondu en JSON via son API OpenAI-compatible sur le réseau Compose. Le backend s’est construit après le passage des sources APT Debian en HTTPS, puis son healthcheck a répondu `{"status":"ready"}` sur le port local 8002 (les ports 8000 et 8001 étaient déjà utilisés). La transcription effective, le pipeline vidéo et la mesure de mémoire combinée restent à faire. Voir `docs/POC_RUNTIME.md`.
+**État : validée pour la construction et le démarrage local.** Ollama est sain et Qwen a répondu en JSON via son API OpenAI-compatible sur le réseau Compose. Le backend s’est construit après le passage des sources APT Debian en HTTPS ; ses wheels PyTorch CPU ramènent l’image de 12,4 à 5,85 Go. Son healthcheck répond `{"status":"ready"}` sur le port local 8002 (les ports 8000 et 8001 étaient déjà utilisés). Le profil de sortie reste 1080 × 1920. La transcription effective, le pipeline vidéo et la mesure de mémoire combinée restent à faire. Voir `docs/POC_RUNTIME.md`.
 
 ### Phase 2 — premier Short de bout en bout
 
