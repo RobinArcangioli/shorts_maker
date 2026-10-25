@@ -20,6 +20,8 @@ La phase 0 a confirmé que le dépôt possède déjà la plupart des composants 
 
 Préparer l’environnement de développement et le service Ollama, retenir `qwen2.5:1.5b` comme point de départ expérimental, puis confirmer que l’API OpenAI-compatible et le modèle répondent. Configurer faster-whisper en `base`, CPU, `int8`, avec changement de modèle possible par variables d’environnement. Garder une concurrence vidéo à 1 pour le profil VPS initial.
 
+**État : partiellement validée.** Compose est valide, Ollama est sain et Qwen a répondu en JSON via son API OpenAI-compatible sur le réseau Compose. La construction du backend reste bloquée par l’accès aux dépôts Debian depuis le build Docker ; Whisper, FFmpeg dans l’image, healthcheck FastAPI et mémoire combinée ne sont pas encore vérifiés. Voir `docs/POC_RUNTIME.md`.
+
 ### Phase 2 — premier Short de bout en bout
 
 À partir d’une vidéo française parlée de test autorisée, exécuter upload, transcription, sélection locale, découpe, recadrage et export. Vérifier le MP4, les timestamps et le journal de génération. Ne pas conclure sur la qualité sans visionner le résultat.
