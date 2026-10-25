@@ -1,0 +1,61 @@
+name: shorts-maker-poc
+
+# Minimal spoken-video POC runtime. Keep Ollama on the private Compose network;
+# only the FastAPI backend is exposed to the local machine.
+services:
+  ollama:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_CONTEXT_LENGTH: ${OLLAMA_CONTEXT_LENGTH:-8192}
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TRANSCRIBE_BACKEND: whisper
+      WHISPER_MODEL: ${WHISPER_MODEL:-base}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE: ${WHISPER_COMPUTE:-int8}
+      LLM_PROVIDER: openai
+      LLM_BASE_URL: http://ollama:11434/v1
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:1.5b}
+      LLM_API_KEY: ollama
+      LLM_SCORE_BATCH: ${LLM_SCORE_BATCH:-1}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:-600}
+      OLLAMA_CONTEXT_LENGTH: ${OLLAMA_CONTEXT_LENGTH:-8192}
+      MAX_CONCURRENT_JOBS: "1"
+    ports:
+      - "127.0.0.1:${SHORTS_MAKER_PORT:-8000}:8000"
+    volumes:
+      - .:/app
+      - shorts_maker_uploads:/app/uploads
+      - shorts_maker_output:/app/output
+      - whisper_cache:/app/.cache/huggingface
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/health/ready >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+volumes:
+  ollama_models:
+  shorts_maker_uploads:
+  shorts_maker_output:
+  whisper_cache:
