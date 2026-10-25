@@ -28,9 +28,9 @@ Préparer l’environnement de développement et le service Ollama, retenir `qwe
 
 Évaluer la couverture des fenêtres, le classement global, la diversité, les timestamps et les réponses JSON. Corriger uniquement les problèmes observés et conserver les sorties brutes nécessaires à la comparaison.
 
-### Phase 4 — export 720p et sous-titres
+### Phase 4 — export 1080p et sous-titres
 
-Rendre la définition de sortie configurable et fixer le profil POC à 720 × 1280, H.264/AAC, MP4. Réutiliser la transcription pour les sous-titres et vérifier les modes activé et désactivé.
+Garder la définition de sortie configurable et fixer le profil POC à 1080 × 1920, H.264/AAC, MP4, conformément au minimum de livraison du moteur OpenShorts. Ne pas réduire la définition au seul motif d’économiser les ressources ; mesurer le coût sur le VPS. Réutiliser la transcription pour les sous-titres et vérifier les modes activé et désactivé.
 
 ### Phase 5 — parcours web minimal
 
