@@ -14,13 +14,13 @@ La phase 0 a confirmé que le dépôt possède déjà la plupart des composants 
 
 ### Phase 0 — audit et préparation
 
-**État : audit effectué, validation partielle.** La base, les modules, les licences et les écarts principaux sont consignés dans `docs/POC_ARCHITECTURE.md`. Les tests unitaires n’ont pas pu être lancés : `pytest` n’est pas installé. La vérification d’exécution manuelle n’a pas pu aller au-delà de l’inspection : le démon Docker est inaccessible, et FFmpeg et Ollama ne sont pas installés sur l’hôte.
+**État : audit effectué, validation partielle.** La base, les modules, les licences et les écarts principaux sont consignés dans `docs/POC_ARCHITECTURE.md`. Les tests unitaires n’ont pas été lancés (`pytest` n’est pas installé). Le backend et FFmpeg sont maintenant construits dans Docker ; Ollama tourne également en conteneur.
 
 ### Phase 1 — environnement local et IA
 
 Préparer l’environnement de développement et le service Ollama, retenir `qwen2.5:1.5b` comme point de départ expérimental, puis confirmer que l’API OpenAI-compatible et le modèle répondent. Configurer faster-whisper en `base`, CPU, `int8`, avec changement de modèle possible par variables d’environnement. Garder une concurrence vidéo à 1 pour le profil VPS initial.
 
-**État : partiellement validée.** Compose est valide, Ollama est sain et Qwen a répondu en JSON via son API OpenAI-compatible sur le réseau Compose. La construction du backend reste bloquée par l’accès aux dépôts Debian depuis le build Docker ; Whisper, FFmpeg dans l’image, healthcheck FastAPI et mémoire combinée ne sont pas encore vérifiés. Voir `docs/POC_RUNTIME.md`.
+**État : validée pour la construction et le démarrage local.** Ollama est sain et Qwen a répondu en JSON via son API OpenAI-compatible sur le réseau Compose. Le backend s’est construit après le passage des sources APT Debian en HTTPS, puis son healthcheck a répondu `{"status":"ready"}` sur le port local 8002 (les ports 8000 et 8001 étaient déjà utilisés). La transcription effective, le pipeline vidéo et la mesure de mémoire combinée restent à faire. Voir `docs/POC_RUNTIME.md`.
 
 ### Phase 2 — premier Short de bout en bout
 
@@ -48,7 +48,7 @@ Suivre le protocole de `docs/POC_BENCHMARK.md` à créer lorsque le pipeline pro
 
 ## Prochain chemin le plus court
 
-1. Rendre disponible un environnement Docker avec FFmpeg et les dépendances OpenShorts.
+1. Utiliser le runtime Docker Compose validé, avec FFmpeg et les dépendances OpenShorts.
 2. Démarrer Ollama avec son API accessible depuis le backend et charger le modèle configuré.
 3. Configurer faster-whisper `base`/CPU/`int8` et Ollama `qwen2.5:1.5b` via l’environnement.
 4. Fournir une vidéo parlée de test autorisée, de 15 minutes maximum.

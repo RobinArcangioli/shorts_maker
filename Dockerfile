@@ -4,7 +4,8 @@ FROM python:3.11-slim AS builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -41,7 +42,8 @@ WORKDIR /app
 # fonts-noto-core (~42 MB) is the glyph fallback for every other script:
 # Arabic, Hebrew, Devanagari, Bengali, Thai... burned as tofu boxes without it
 # (issue #89). libass shapes and orders RTL text itself once a font has the glyphs.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     curl \
     libgl1 \
